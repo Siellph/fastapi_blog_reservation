@@ -12,8 +12,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from tests.const import URLS
 from tests.mocking.kafka import TestKafkaProducer
 from tests.my_types import FixtureFunctionT
-from webapp.db import kafka
 
+from webapp.db import kafka
 from webapp.db.postgres import engine, get_session
 from webapp.models.meta import metadata
 
@@ -81,6 +81,7 @@ async def _common_api_fixture(
     _load_fixtures: FixtureFunctionT,
 ) -> None:
     return
+
 
 @pytest.fixture()
 async def _common_api_with_kafka_fixture(

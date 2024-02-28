@@ -15,7 +15,6 @@ from webapp.schema.file.resized import User
 from webapp.utils.auth.jwt import JwtTokenT, jwt_auth
 
 
-
 @file_router.get('/resize', response_model=ImageResizeResponse)
 async def get_resized(
     task_id: str,

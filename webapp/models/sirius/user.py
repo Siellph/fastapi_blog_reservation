@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -14,11 +14,9 @@ class User(Base):
     __table_args__ = ({'schema': DEFAULT_SCHEMA},)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-
     username: Mapped[str] = mapped_column(String, unique=True)
-
     hashed_password: Mapped[str] = mapped_column(String)
-
+    phone: Mapped[str] = mapped_column(String)
     files: Mapped[List['File']] = relationship(
         'File',
         secondary=f'{DEFAULT_SCHEMA}.user_file',

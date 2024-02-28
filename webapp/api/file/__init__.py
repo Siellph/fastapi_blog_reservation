@@ -1,1 +1,1 @@
-from . import resize, get_resized
+from . import get_resized, resize

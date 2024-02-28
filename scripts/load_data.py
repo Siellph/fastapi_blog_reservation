@@ -1,6 +1,7 @@
 import json
 import asyncio
 import argparse
+from datetime import datetime
 from pathlib import Path
 from typing import List
 
@@ -23,6 +24,9 @@ async def main(fixtures: List[str]) -> None:
 
         with open(fixture_path, 'r') as file:
             values = json.load(file)
+        if model.name == 'reservation':
+            for item in values:
+                item['date_reserv'] = datetime.fromisoformat(item['date_reserv'])
 
         async with async_session() as session:
             await session.execute(insert(model).values(values))

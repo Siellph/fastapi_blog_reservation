@@ -2,16 +2,10 @@ import os
 
 import prometheus_client
 from aiokafka import AIOKafkaConsumer
-from prometheus_client import (
-    CONTENT_TYPE_LATEST,
-    REGISTRY,
-    CollectorRegistry,
-    generate_latest,
-)
+from prometheus_client import CONTENT_TYPE_LATEST, REGISTRY, CollectorRegistry, generate_latest
 from prometheus_client.multiprocess import MultiProcessCollector
 from starlette.requests import Request
 from starlette.responses import Response
-
 
 DEFAULT_BUCKETS = (
     0.005,
@@ -36,7 +30,6 @@ DEFAULT_BUCKETS = (
 )
 
 
-
 # TODO in middleware
 # prometheus_client.Counter(
 #     'sirius_deps_latency_seconds',
@@ -52,6 +45,7 @@ DEPS_LATENCY = prometheus_client.Histogram(
     ['endpoint'],
     buckets=DEFAULT_BUCKETS,
 )
+
 
 def metrics(request: Request) -> Response:
     if 'prometheus_multiproc_dir' in os.environ:
