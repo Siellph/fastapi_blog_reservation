@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from webapp.api.file.router import file_router
-from webapp.api.login.router import auth_router
+from webapp.api.login.router import auth_router, user_router
 from webapp.metrics import metrics
 from webapp.on_shutdown import stop_producer
 from webapp.on_startup.kafka import create_producer
@@ -29,6 +29,7 @@ def setup_routers(app: FastAPI) -> None:
 
     app.include_router(auth_router)
     app.include_router(file_router)
+    app.include_router(user_router)
 
 
 @asynccontextmanager
