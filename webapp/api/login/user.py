@@ -52,7 +52,7 @@ async def update_user_endpoint(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-@user_router.delete('/me/delete', status_code=status.HTTP_204_NO_CONTENT, tags=['Users'])
+@user_router.delete('/me/delete', status_code=status.HTTP_204_NO_CONTENT, tags=['Users'], response_class=ORJSONResponse)
 async def delete_user_endpoint(
     session: AsyncSession = Depends(get_session),
     current_user: JwtTokenT = Depends(jwt_auth.get_current_user),

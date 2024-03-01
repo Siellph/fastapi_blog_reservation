@@ -79,7 +79,7 @@ async def update_reservation_endpoint(
 
 
 @reservation_router.delete(
-    '/{reservation_id}', response_model=dict, tags=['Reservations'], response_class=ORJSONResponse
+    '/{reservation_id}', status_code=status.HTTP_204_NO_CONTENT, tags=['Reservations'], response_class=ORJSONResponse
 )
 async def delete_reservation_endpoint(
     reservation_id: int,
@@ -91,7 +91,6 @@ async def delete_reservation_endpoint(
             deleted_reservation_id = await delete_reservation(session=session, reservation_id=reservation_id)
             if not deleted_reservation_id:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Запись не найдена')
-            return {'message': f'Резерв {deleted_reservation_id} отменен.'}
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     else:

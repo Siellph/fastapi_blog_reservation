@@ -55,6 +55,6 @@ async def delete_restaurant(session: AsyncSession, restaurant_id: int) -> int:
     if not restaurant:
         return False
 
-    session.delete(restaurant)
+    await session.delete(restaurant)
     await session.commit()
     return True

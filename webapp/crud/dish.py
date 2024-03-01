@@ -55,7 +55,7 @@ async def delete_dish(session: AsyncSession, dish_id: int) -> int:
     if not dish:
         return False
 
-    session.delete(dish)
+    await session.delete(dish)
     await session.commit()
     return True
 

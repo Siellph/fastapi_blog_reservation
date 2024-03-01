@@ -53,7 +53,7 @@ async def delete_reservation(session: AsyncSession, reservation_id: int) -> int:
     if not reservation:
         return False
 
-    session.delete(reservation)
+    await session.delete(reservation)
     await session.commit()
     return True
 

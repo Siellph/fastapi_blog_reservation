@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import Depends, HTTPException, Query, status
+from fastapi.responses import ORJSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from webapp.api.restaurant.router import restaurant_router
@@ -19,7 +20,13 @@ from webapp.schema.restaurant.restaurant import RestaurantCreate, RestaurantRead
 from webapp.utils.auth.jwt import JwtTokenT, jwt_auth
 
 
-@restaurant_router.post('/', response_model=RestaurantRead, tags=['Restaurants'], status_code=status.HTTP_201_CREATED)
+@restaurant_router.post(
+    '/',
+    response_model=RestaurantRead,
+    tags=['Restaurants'],
+    status_code=status.HTTP_201_CREATED,
+    response_class=ORJSONResponse,
+)
 async def create_new_restaurant(
     restaurant_data: RestaurantCreate,
     session: AsyncSession = Depends(get_session),
@@ -34,7 +41,9 @@ async def create_new_restaurant(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Нет доступа для выполнения этой операции')
 
 
-@restaurant_router.get('/{restaurant_id}', response_model=RestaurantRead, tags=['Restaurants'])
+@restaurant_router.get(
+    '/{restaurant_id}', response_model=RestaurantRead, tags=['Restaurants'], response_class=ORJSONResponse
+)
 async def get_single_restaurant(
     restaurant_id: int,
     session: AsyncSession = Depends(get_session),
@@ -48,7 +57,9 @@ async def get_single_restaurant(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-@restaurant_router.get('/{restaurant_id}/menu', response_model=List[DishRead], tags=['Restaurants'])
+@restaurant_router.get(
+    '/{restaurant_id}/menu', response_model=List[DishRead], tags=['Restaurants'], response_class=ORJSONResponse
+)
 async def get_dishes_for_restaurant(
     restaurant_id: int,
     category: DishCategory = Query(None, description='Фильтр по категории блюд'),
@@ -65,7 +76,7 @@ async def get_dishes_for_restaurant(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-@restaurant_router.get('/', response_model=List[RestaurantRead], tags=['Restaurants'])
+@restaurant_router.get('/', response_model=List[RestaurantRead], tags=['Restaurants'], response_class=ORJSONResponse)
 async def get_all_restaurants(session: AsyncSession = Depends(get_session)):
     try:
         return await get_restaurants(session=session)
@@ -73,7 +84,9 @@ async def get_all_restaurants(session: AsyncSession = Depends(get_session)):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-@restaurant_router.put('/{restaurant_id}', response_model=RestaurantRead, tags=['Restaurants'])
+@restaurant_router.put(
+    '/{restaurant_id}', response_model=RestaurantRead, tags=['Restaurants'], response_class=ORJSONResponse
+)
 async def update_existing_restaurant(
     restaurant_id: int,
     restaurant_data: RestaurantUpdate,
@@ -94,7 +107,9 @@ async def update_existing_restaurant(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Нет доступа для выполнения этой операции')
 
 
-@restaurant_router.delete('/{restaurant_id}', response_model=int, tags=['Restaurants'])
+@restaurant_router.delete(
+    '/{restaurant_id}', status_code=status.HTTP_204_NO_CONTENT, tags=['Restaurants'], response_class=ORJSONResponse
+)
 async def delete_existing_restaurant(
     restaurant_id: int,
     session: AsyncSession = Depends(get_session),
@@ -105,7 +120,6 @@ async def delete_existing_restaurant(
             deleted_restaurant_id = await delete_restaurant(session=session, restaurant_id=restaurant_id)
             if not deleted_restaurant_id:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Запись не найдена')
-            return deleted_restaurant_id
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     else:
