@@ -48,3 +48,13 @@ async def get_user_by_id(session: AsyncSession, user_id: int) -> UserRead | None
     if user:
         return UserRead.model_validate(user)
     return None
+
+
+async def delete_user(session: AsyncSession, user_id: int) -> bool:
+    result = await session.execute(select(SQLAUser).where(SQLAUser.id == user_id))
+    result = result.scalars().first()
+    if result:
+        await session.delete(result)
+        await session.commit()
+        return True
+    return False

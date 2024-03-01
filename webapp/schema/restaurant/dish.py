@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -8,7 +8,7 @@ from webapp.models.sirius.dish import DishCategory
 # Общая модель
 class DishRead(BaseModel):
     id: Optional[int] = None
-    restaurant_id: List[int]
+    restaurant_id: int
     category: DishCategory
     dish_name: str
     description: str
@@ -19,7 +19,7 @@ class DishRead(BaseModel):
 
 # Модель для создания
 class DishCreate(BaseModel):
-    restaurant_id: List[int]
+    restaurant_id: int
     category: DishCategory
     dish_name: str
     description: str
@@ -28,7 +28,7 @@ class DishCreate(BaseModel):
 
 # Модель для обновления
 class DishUpdate(BaseModel):
-    restaurant_id: Optional[List[int]] = None
+    restaurant_id: Optional[int] = None
     category: Optional[DishCategory] = None
     dish_name: Optional[str] = None
     description: Optional[str] = None

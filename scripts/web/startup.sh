@@ -9,7 +9,6 @@ python scripts/migrate.py
 python scripts/load_data.py fixture/sirius/sirius.user.json
 python scripts/load_data.py fixture/sirius/sirius.restaurant.json
 python scripts/load_data.py fixture/sirius/sirius.dish.json
-python scripts/load_data.py fixture/sirius/sirius.restaurant_dish.json
 python scripts/load_data.py fixture/sirius/sirius.reservation.json
 
 

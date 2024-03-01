@@ -1,15 +1,16 @@
-from typing import List, Optional
+from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 # Основная модель
-class RestaurantSchema(BaseModel):
+class RestaurantRead(BaseModel):
     id: int
     name: str
     address: str
     description: str
-    menu: List[int]
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Модель для создания
@@ -17,7 +18,6 @@ class RestaurantCreate(BaseModel):
     name: str
     address: str
     description: str
-    menu: List[int]
 
 
 # Модель для обновления
@@ -25,4 +25,3 @@ class RestaurantUpdate(BaseModel):
     name: Optional[str] = None
     address: Optional[str] = None
     description: Optional[str] = None
-    menu: Optional[List[int]] = None
