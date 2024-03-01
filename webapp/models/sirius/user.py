@@ -40,3 +40,5 @@ class User(Base):
         secondary=f'{DEFAULT_SCHEMA}.user_file',
         back_populates='users',
     )
+
+    reservations = relationship('Reservation', back_populates='user', cascade='all, delete-orphan')
