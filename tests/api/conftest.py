@@ -1,7 +1,9 @@
 import json
 import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import AsyncGenerator, List
+from unittest import mock
 
 import pytest
 from fastapi import FastAPI
@@ -15,13 +17,32 @@ from tests.my_types import FixtureFunctionT
 
 from webapp.db import kafka
 from webapp.db.postgres import engine, get_session
+from webapp.db.redis import get_redis
 from webapp.models.meta import metadata
 
 
 @pytest.fixture()
-async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
-    async with AsyncClient(app=app, base_url='http://test.com') as client:
+def redis_mock():
+    # Создаем асинхронный mock объект для Redis
+    mock_redis = mock.AsyncMock()
+    mock_redis.get.return_value = None
+    mock_redis.delete.return_value = None
+    return mock_redis
+
+
+@pytest.fixture()
+async def client(
+    app: FastAPI,
+    redis_mock,
+) -> AsyncGenerator[AsyncClient, None]:
+    app.dependency_overrides[get_redis] = lambda: redis_mock
+    async with AsyncClient(
+        app=app,
+        base_url='http://test.com',
+        follow_redirects=True,
+    ) as client:
         yield client
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture()
@@ -33,7 +54,7 @@ async def db_session(app: FastAPI) -> AsyncGenerator[AsyncSession, None]:
         async def mocked_session() -> AsyncGenerator[AsyncSession, None]:
             yield session
 
-        app.dependency_overrides[get_session] = mocked_session  # noqa
+        app.dependency_overrides[get_session] = mocked_session
 
         yield session
 
@@ -47,6 +68,10 @@ async def _load_fixtures(db_session: AsyncSession, fixtures: List[Path]) -> Fixt
 
         with open(fixture, 'r') as file:
             values = json.load(file)
+
+        if model.name == 'reservation':
+            for item in values:
+                item['date_reserv'] = datetime.fromisoformat(item['date_reserv'])
 
         await db_session.execute(insert(model).values(values))
         await db_session.commit()
