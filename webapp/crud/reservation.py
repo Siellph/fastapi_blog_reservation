@@ -5,7 +5,7 @@ from webapp.models.sirius.reservation import Reservation
 from webapp.schema.reservation.reservation import ReservationCreate, ReservationRead, ReservationUpdate
 
 
-async def create_reservation(session: AsyncSession, reservation_data: ReservationCreate) -> ReservationRead:
+async def create_reservation(session: AsyncSession, reservation_data: ReservationCreate) -> ReservationRead | None:
     reservation = Reservation(**reservation_data.model_dump())
     session.add(reservation)
     await session.commit()
@@ -13,25 +13,29 @@ async def create_reservation(session: AsyncSession, reservation_data: Reservatio
     return ReservationRead.model_validate(reservation)
 
 
-async def get_reservation(session: AsyncSession, reservation_id: int) -> ReservationRead:
+async def get_reservation(session: AsyncSession, reservation_id: int) -> ReservationRead | None:
     statement = select(Reservation).where(Reservation.id == reservation_id)
     result = await session.execute(statement)
     reservation = result.scalar()
     if not reservation:
         return None
+
     return ReservationRead.model_validate(reservation)
 
 
-async def get_reservations(session: AsyncSession) -> list[ReservationRead]:
+async def get_reservations(session: AsyncSession) -> list[ReservationRead] | None:
     statement = select(Reservation)
     result = await session.execute(statement)
     reservations = result.scalars().all()
+    if not reservations:
+        return None
+
     return [ReservationRead.model_validate(reservation) for reservation in reservations]
 
 
 async def update_reservation(
     session: AsyncSession, reservation_id: int, reservation_data: ReservationUpdate
-) -> ReservationRead:
+) -> ReservationRead | None:
     statement = select(Reservation).where(Reservation.id == reservation_id)
     result = await session.execute(statement)
     reservation = result.scalar()
@@ -46,7 +50,7 @@ async def update_reservation(
     return ReservationRead.model_validate(reservation)
 
 
-async def delete_reservation(session: AsyncSession, reservation_id: int) -> int:
+async def delete_reservation(session: AsyncSession, reservation_id: int) -> bool:
     statement = select(Reservation).where(Reservation.id == reservation_id)
     result = await session.execute(statement)
     reservation = result.scalar()
@@ -58,8 +62,11 @@ async def delete_reservation(session: AsyncSession, reservation_id: int) -> int:
     return True
 
 
-async def get_reservations_for_user(session: AsyncSession, user_id: int) -> list[ReservationRead]:
+async def get_reservations_for_user(session: AsyncSession, user_id: int) -> list[ReservationRead] | None:
     statement = select(Reservation).where(Reservation.user_id == user_id)
     result = await session.execute(statement)
     reservations = result.scalars().all()
+    if not reservations:
+        return None
+
     return [ReservationRead.model_validate(reservation) for reservation in reservations]
