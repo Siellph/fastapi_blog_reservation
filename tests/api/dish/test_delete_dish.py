@@ -14,46 +14,48 @@ FIXTURES_PATH = BASE_DIR / 'fixtures'
     (
         'username',
         'password',
-        'new_username',
-        'new_phone',
-        'user_id',
+        'id',
         'expected_status',
         'fixtures',
     ),
     [
         (
-            'user',
+            'staff',
             'qwerty',
-            'my_new_username',
-            '89976543454',
-            1,
-            status.HTTP_200_OK,
+            5,
+            status.HTTP_204_NO_CONTENT,
             [
                 FIXTURES_PATH / 'sirius.user.json',
+                FIXTURES_PATH / 'sirius.restaurant.json',
+                FIXTURES_PATH / 'sirius.dish.json',
+            ],
+        ),
+        (
+            'user',
+            'qwerty',
+            5,
+            status.HTTP_403_FORBIDDEN,
+            [
+                FIXTURES_PATH / 'sirius.user.json',
+                FIXTURES_PATH / 'sirius.restaurant.json',
+                FIXTURES_PATH / 'sirius.dish.json',
             ],
         ),
     ],
 )
 @pytest.mark.asyncio()
 @pytest.mark.usefixtures('_common_api_fixture')
-async def test_update_me(
+async def test_delete_dish(
     client: AsyncClient,
     username: str,
     password: str,
-    new_username: str,
-    new_phone: str,
-    user_id: int,
+    id: int,
     expected_status: int,
     access_token: str,
 ) -> None:
-    response = await client.put(
-        URLS['user']['update'],
+    response = await client.delete(
+        URLS['dish']['get_put_delete'].format(dish_id=id),
         headers={'Authorization': f'Bearer Bearer {access_token}'},
-        json={'username': new_username, 'phone': new_phone},
     )
 
     assert response.status_code == expected_status
-    response_data = response.json()
-    assert response_data['id'] == user_id
-    assert response_data['phone'] == new_phone
-    assert response_data['username'] == new_username

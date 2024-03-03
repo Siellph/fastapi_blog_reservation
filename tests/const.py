@@ -6,6 +6,7 @@ URLS = {
     },
     'dish': {
         'get_all_create': '/dishes',
+        'get_by_category': '/dishes/?category={category}',
         'get_put_delete': '/dishes/{dish_id}',
     },
     'restaurant': {

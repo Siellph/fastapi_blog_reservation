@@ -36,9 +36,8 @@ async def test_signup(
     )
 
     assert response.status_code == expected_status
-    if response.status_code == 201:
-        response_data = response.json()
-        assert response_data['username'] == username
-        assert response_data['phone'] == phone
-        assert response_data['role'] == role
-        assert response_data['id'] == user_id
+    response_data = response.json()
+    assert response_data['username'] == username
+    assert response_data['phone'] == phone
+    assert response_data['role'] == role
+    assert response_data['id'] == user_id

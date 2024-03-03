@@ -67,12 +67,11 @@ async def test_my_reservations(
     )
 
     assert response.status_code == expected_status
-    if response.status_code == status.HTTP_200_OK:
-        response_data = response.json()
-        assert len(response_data) == list_len
-        assert response_data[0]['id'] == id
-        assert response_data[0]['user_id'] == user_id
-        assert response_data[0]['restaurant_id'] == restaurant_id
-        assert response_data[0]['date_reserv'] == date_reserv
-        assert response_data[0]['guest_count'] == guest_count
-        assert response_data[0]['comment'] == comment
+    response_data = response.json()
+    assert len(response_data) == list_len
+    assert response_data[0]['id'] == id
+    assert response_data[0]['user_id'] == user_id
+    assert response_data[0]['restaurant_id'] == restaurant_id
+    assert response_data[0]['date_reserv'] == date_reserv
+    assert response_data[0]['guest_count'] == guest_count
+    assert response_data[0]['comment'] == comment
