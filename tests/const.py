@@ -16,7 +16,8 @@ URLS = {
         'get_menu_by_category': '/restaurants/{restaurant_id}/menu?category={category}',
     },
     'reservation': {
-        'get_all_create': '/reservations',
+        'create': '/reservations',
+        '[1]': '/reservations/{restaurants_id}',
         'get_put_delete': '/reservations/{reservation_id}',
     },
     'user': {

@@ -19,11 +19,11 @@ class ReservationRead(BaseModel):
 
 # Модель для создания
 class ReservationCreate(BaseModel):
-    user_id: int
+    user_id: Optional[int]
     restaurant_id: int
     date_reserv: datetime
     guest_count: int
-    status: bool
+    status: Optional[bool] = False
     comment: Optional[str] = None
 
 

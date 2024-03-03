@@ -29,8 +29,8 @@ def get_restaurant_menu_by_id_cache(restaurant_id: int, category: str = None):
     return f'{settings.REDIS_SIRIUS_CACHE_PREFIX}:restaurant:{restaurant_id}:menu'
 
 
-def get_reservations_cache():
-    return f'{settings.REDIS_SIRIUS_CACHE_PREFIX}:reservations'
+def get_reservations_cache(restaurant_id: int):
+    return f'{settings.REDIS_SIRIUS_CACHE_PREFIX}:reservations:{restaurant_id}'
 
 
 def get_reservation_by_id_cache(reservation_id: int):

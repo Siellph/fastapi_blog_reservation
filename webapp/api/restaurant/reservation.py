@@ -24,7 +24,13 @@ from webapp.schema.reservation.reservation import ReservationCreate, Reservation
 from webapp.utils.auth.jwt import JwtTokenT, jwt_auth
 
 
-@reservation_router.post('/', response_model=ReservationRead, tags=['Reservations'], response_class=ORJSONResponse)
+@reservation_router.post(
+    '/',
+    status_code=status.HTTP_201_CREATED,
+    response_model=ReservationRead,
+    tags=['Reservations'],
+    response_class=ORJSONResponse,
+)
 async def create_reservation_endpoint(
     reservation_data: ReservationCreate,
     session: AsyncSession = Depends(get_session),
@@ -32,10 +38,12 @@ async def create_reservation_endpoint(
     current_user: JwtTokenT = Depends(jwt_auth.get_current_user),
 ):
     try:
+        if reservation_data.user_id == 0:
+            reservation_data.user_id = current_user['user_id']
         reservation = await create_reservation(session=session, reservation_data=reservation_data)
-        cache_key_reservations = get_reservations_cache()
+        cache_key_reservations = get_reservations_cache(restaurant_id=reservation_data.restaurant_id)
         cache_key_reservation_by_id = get_reservation_by_id_cache(reservation_id=reservation.id)
-        cache_key_user_reservations = get_user_reservations_by_id_cache(user_id=reservation['user_id'])
+        cache_key_user_reservations = get_user_reservations_by_id_cache(user_id=reservation.user_id)
         await redis.delete(cache_key_reservations, cache_key_reservation_by_id, cache_key_user_reservations)
         return reservation
     except Exception as e:
@@ -69,17 +77,21 @@ async def read_reservation_endpoint(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-@reservation_router.get('/', response_model=list[ReservationRead], tags=['Reservations'], response_class=ORJSONResponse)
-async def read_reservations_endpoint(session: AsyncSession = Depends(get_session), redis: Redis = Depends(get_redis)):
+@reservation_router.get(
+    '/{restaurant_id}', response_model=list[ReservationRead], tags=['Reservations'], response_class=ORJSONResponse
+)
+async def read_reservations_endpoint(
+    restaurant_id: int, session: AsyncSession = Depends(get_session), redis: Redis = Depends(get_redis)
+):
     try:
-        cache_key_reservations = get_reservations_cache()
+        cache_key_reservations = get_reservations_cache(restaurant_id=restaurant_id)
         cached_reservations = await redis.get(cache_key_reservations)
         if cached_reservations:
             if cached_reservations == b'[]':
                 return ORJSONResponse(status_code=status.HTTP_404_NOT_FOUND, content='Записи о бронировании не найдены')
             return orjson.loads(cached_reservations)
         else:
-            reservations = await get_reservations(session=session)
+            reservations = await get_reservations(session=session, restaurant_id=restaurant_id)
             if reservations is None:
                 await redis.set(cache_key_reservations, b'[]', ex=3600)
                 return ORJSONResponse(status_code=status.HTTP_404_NOT_FOUND, content='Записи о бронировании не найдены')
@@ -115,7 +127,7 @@ async def update_reservation_endpoint(
                 return ORJSONResponse(
                     status_code=status.HTTP_404_NOT_FOUND, content='Обновляемая запись о бронировании не найдена'
                 )
-            cache_key_reservations = get_reservations_cache()
+            cache_key_reservations = get_reservations_cache(restaurant_id=reservation.restaurant_id)
             cache_key_reservation_by_id = get_reservation_by_id_cache(reservation_id=reservation_id)
             cache_key_user_reservations = get_user_reservations_by_id_cache(user_id=reservation.user_id)
             await redis.delete(cache_key_reservations, cache_key_reservation_by_id, cache_key_user_reservations)
@@ -143,7 +155,7 @@ async def delete_reservation_endpoint(
                 return ORJSONResponse(
                     status_code=status.HTTP_404_NOT_FOUND, content='Удаляемая запись о бронировании не найдена'
                 )
-            cache_key_reservations = get_reservations_cache()
+            cache_key_reservations = get_reservations_cache(restaurant_id=reservation.restaurant_id)
             cache_key_reservation_by_id = get_reservation_by_id_cache(reservation_id=reservation_id)
             cache_key_user_reservations = get_user_reservations_by_id_cache(user_id=reservation.user_id)
             await redis.delete(cache_key_reservations, cache_key_reservation_by_id, cache_key_user_reservations)

@@ -11,7 +11,7 @@ class Reservation(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey(f'{DEFAULT_SCHEMA}.user.id'))
     restaurant_id: Mapped[int] = mapped_column(Integer, ForeignKey(f'{DEFAULT_SCHEMA}.restaurant.id'))
-    date_reserv: Mapped[DateTime] = mapped_column(DateTime)
+    date_reserv: Mapped[DateTime] = mapped_column(DateTime(timezone=True))
     guest_count: Mapped[int] = mapped_column(Integer)
     status: Mapped[bool] = mapped_column(Boolean, default=False)
     comment: Mapped[str] = mapped_column(String)

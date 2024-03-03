@@ -1,7 +1,7 @@
-from datetime import datetime
 from pathlib import Path
-from dateutil.parser import parse
+
 import pytest
+from dateutil.parser import parse
 from httpx import AsyncClient
 from starlette import status
 
@@ -21,7 +21,7 @@ FIXTURES_PATH = BASE_DIR / 'fixtures'
         'date_reserv',
         'guest_count',
         'comment',
-        'list_len',
+        'responce_status',
         'expected_status',
         'fixtures',
     ),
@@ -29,13 +29,13 @@ FIXTURES_PATH = BASE_DIR / 'fixtures'
         (
             'user',
             'qwerty',
-            1,
-            1,
+            2,
+            2,
             1,
             '2024-03-03T11:30:57.390Z',
             2,
             'Особые требования к столику',
-            1,
+            False,
             status.HTTP_200_OK,
             [
                 FIXTURES_PATH / 'sirius.user.json',
@@ -47,31 +47,32 @@ FIXTURES_PATH = BASE_DIR / 'fixtures'
 )
 @pytest.mark.asyncio()
 @pytest.mark.usefixtures('_common_api_fixture')
-async def test_my_reservations(
+async def test_get_reservation(
     client: AsyncClient,
     username: str,
     password: str,
     id: int,
     user_id: int,
     restaurant_id: int,
-    date_reserv: datetime,
+    date_reserv: str,
     guest_count: int,
     comment: str,
-    list_len: 1,
+    responce_status: bool,
     expected_status: int,
     access_token: str,
 ) -> None:
     response = await client.get(
-        URLS['user']['reservations'],
+        URLS['reservation']['get_put_delete'].format(reservation_id=id),
         headers={'Authorization': f'Bearer Bearer {access_token}'},
     )
 
     assert response.status_code == expected_status
-    response_data = response.json()
-    assert len(response_data) == list_len
-    assert response_data[0]['id'] == id
-    assert response_data[0]['user_id'] == user_id
-    assert response_data[0]['restaurant_id'] == restaurant_id
-    assert parse(response_data[0]['date_reserv']) == parse(date_reserv)
-    assert response_data[0]['guest_count'] == guest_count
-    assert response_data[0]['comment'] == comment
+    if response.status_code == status.HTTP_201_CREATED:
+        response_data = response.json()
+        assert response_data['id'] == id
+        assert response_data['user_id'] == user_id
+        assert response_data['restaurant_id'] == restaurant_id
+        assert parse(response_data['date_reserv']) == parse(date_reserv)
+        assert response_data['guest_count'] == guest_count
+        assert response_data['comment'] == comment
+        assert response_data['status'] == responce_status

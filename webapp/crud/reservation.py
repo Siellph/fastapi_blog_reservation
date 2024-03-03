@@ -23,8 +23,8 @@ async def get_reservation(session: AsyncSession, reservation_id: int) -> Reserva
     return ReservationRead.model_validate(reservation)
 
 
-async def get_reservations(session: AsyncSession) -> list[ReservationRead] | None:
-    statement = select(Reservation)
+async def get_reservations(session: AsyncSession, restaurant_id: int) -> list[ReservationRead] | None:
+    statement = select(Reservation).where(Reservation.id == restaurant_id)
     result = await session.execute(statement)
     reservations = result.scalars().all()
     if not reservations:
