@@ -2,8 +2,8 @@ from typing import List
 
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from webapp.models.sirius.dish import DishCategory
-from webapp.models.sirius.dish import Dish
+
+from webapp.models.sirius.dish import Dish, DishCategory
 from webapp.schema.restaurant.dish import DishCreate, DishRead, DishUpdate
 
 

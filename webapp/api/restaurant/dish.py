@@ -1,7 +1,7 @@
 from typing import List
 
 import orjson
-from fastapi import Depends, HTTPException, Query, Request
+from fastapi import Depends, HTTPException, Query
 from fastapi.responses import ORJSONResponse
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,9 +17,10 @@ from webapp.schema.restaurant.dish import DishCreate, DishRead, DishUpdate
 from webapp.utils.auth.jwt import JwtTokenT, jwt_auth
 
 
-@dish_router.post('/', response_model=DishRead, tags=['Dishes'], response_class=ORJSONResponse)
+@dish_router.post(
+    '/', response_model=DishRead, status_code=status.HTTP_201_CREATED, tags=['Dishes'], response_class=ORJSONResponse
+)
 async def create_dish_endpoint(
-    request: Request,
     dish_data: DishCreate,
     session: AsyncSession = Depends(get_session),
     current_user: JwtTokenT = Depends(jwt_auth.get_current_user),
