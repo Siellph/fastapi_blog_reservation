@@ -13,6 +13,7 @@ URLS = {
         'get_all_create': '/restaurants',
         'get_put_delete': '/restaurants/{restaurant_id}',
         'get_menu': '/restaurants/{restaurant_id}/menu',
+        'get_menu_by_category': '/restaurants/{restaurant_id}/menu?category={category}',
     },
     'reservation': {
         'get_all_create': '/reservations',
